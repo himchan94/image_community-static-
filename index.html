@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="js/data.js" defer></script>
+    <script type="module" defer>
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-analytics.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyBfFdykewNgDaAQ1RfQ7YM0dNQUjl7HoM4",
+        authDomain: "fastcampus-img-site.firebaseapp.com",
+        projectId: "fastcampus-img-site",
+        storageBucket: "fastcampus-img-site.appspot.com",
+        messagingSenderId: "87873787380",
+        appId: "1:87873787380:web:eb1c41bfc84950fa2a55a1",
+        measurementId: "G-G873GWGEHB",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore();
+
+      // 메뉴 이동
+      setMenu = function (_menu) {
+        var filterButtons = document.querySelectorAll("nav li");
+        filterButtons.forEach(function (filterButton) {
+          filterButton.classList.remove("on");
+        });
+        document.querySelector("nav li." + _menu).classList.add("on");
+        document.querySelector("main").className = _menu;
+      };
+
+      // 정렬 방식
+      var sorts = {
+        recent: function (a, b) {
+          return a.idx > b.idx ? -1 : 1;
+        },
+        like: function (a, b) {
+          return a.likes > b.likes ? -1 : 1;
+        },
+      };
+
+      // 현재 선택된 정렬
+      var sort = sorts.recent;
+
+      // 정렬 설정 & 적용
+      function setSort(_sort) {
+        var sortButtons = document.querySelectorAll("#sorts li");
+        sortButtons.forEach(function (sortButton) {
+          sortButton.classList.remove("on");
+        });
+        document.querySelector("#sorts ." + _sort).classList.add("on");
+        sort = sorts[_sort];
+        showPhotos();
+      }
+
+      // 필터 방식
+      var filters = {
+        all: function (it) {
+          return true;
+        },
+        mine: function (it) {
+          return it.user_id === my_info.id;
+        },
+        like: function (it) {
+          return my_info.like.indexOf(it.idx) > -1;
+        },
+        follow: function (it) {
+          return my_info.follow.indexOf(it.user_id) > -1;
+        },
+      };
+
+      // 현재 선택된 필터
+      var filter = filters.all;
+
+      // 필터 설정 & 적용
+      setFilter = function (_filter) {
+        var filterButtons = document.querySelectorAll("#filters li");
+        filterButtons.forEach(function (filterButton) {
+          filterButton.classList.remove("on");
+        });
+        document.querySelector("#filters ." + _filter).classList.add("on");
+        filter = filters[_filter];
+        showPhotos();
+      };
+
+      // 사진들 새로 보여주기
+      function showPhotos() {
+        // 현재 화면의 사진들 삭제
+        var existingNodes = document.querySelectorAll(
+          "#gallery article:not(.hidden)"
+        );
+        existingNodes.forEach(function (existingNode) {
+          existingNode.remove();
+        });
+
+        // 갤러리 div 선택
+        var gallery = document.querySelector("#gallery");
+
+        // 필터 & 정렬 적용
+        var filtered = photos.filter(filter);
+        filtered.sort(sort);
+
+        // 필터된 사진들 화면에 나타내기
+        filtered.forEach(function (photo) {
+          var photoNode = document
+            .querySelector("article.hidden")
+            .cloneNode(true);
+          photoNode.classList.remove("hidden");
+          photoNode.querySelector(".author").innerHTML = photo.user_name;
+          photoNode.querySelector(".desc").innerHTML = photo.description;
+          photoNode.querySelector(".like").innerHTML = photo.likes;
+          photoNode
+            .querySelector(".like")
+            .addEventListener("click", function () {
+              toggleLike(photo.idx);
+            });
+          photoNode.querySelector(".photo").style.backgroundImage =
+            "url('./img/photo/" + photo.file_name + "')";
+          if (my_info.like.indexOf(photo.idx) > -1) {
+            photoNode.querySelector(".like").classList.add("on");
+          }
+          gallery.appendChild(photoNode);
+        });
+      }
+
+      // 사진의 좋아요 토글
+      function toggleLike(idx) {
+        if (my_info.like.indexOf(idx) === -1) {
+          my_info.like.push(idx);
+          for (var i = 0; i < photos.length; i++) {
+            if (photos[i].idx === idx) {
+              photos[i].likes++;
+              break;
+            }
+          }
+        } else {
+          my_info.like = my_info.like.filter(function (it) {
+            return it !== idx;
+          });
+          for (var i = 0; i < photos.length; i++) {
+            if (photos[i].idx === idx) {
+              photos[i].likes--;
+              break;
+            }
+          }
+        }
+        showPhotos();
+      }
+
+      // 사진올리기의 사진설명 길이 표시
+      function setDescLength() {
+        document.querySelector(".descLength").innerHTML =
+          document.querySelector("input.description").value.length + "/20";
+      }
+
+      updateMyInfo = function () {
+        my_info.introduction = document.querySelector("#ip-intro").value;
+        my_info.as = document.querySelector(
+          "#myinfo input[type=radio]:checked"
+        ).value;
+        var interests = [];
+        document
+          .querySelectorAll("#myinfo input[type=checkbox]:checked")
+          .forEach(function (checked) {
+            interests.push(checked.value);
+          });
+        my_info.interest = interests;
+        setEditMyInfo(false);
+        // showMyInfo();
+        updateMyInfoOnDB();
+      };
+
+      function showMyInfo() {
+        document.querySelector("#myInfoId").innerHTML = my_info.id;
+        document.querySelector("#myInfoUserName").innerHTML = my_info.user_name;
+        document.querySelector("#sp-intro").innerHTML = my_info.introduction;
+        document.querySelector("#ip-intro").value = my_info.introduction;
+        document.querySelector(
+          "#myinfo input[type=radio][value=" + my_info.as + "]"
+        ).checked = true;
+        document
+          .querySelectorAll("#myinfo input[type=checkbox]")
+          .forEach(function (checkbox) {
+            checkbox.checked = false;
+          });
+        my_info.interest.forEach(function (interest) {
+          document.querySelector(
+            "#myinfo input[type=checkbox][value=" + interest + "]"
+          ).checked = true;
+        });
+      }
+
+      setEditMyInfo = function (on) {
+        document.querySelector("#myinfo > div").className = on
+          ? "edit"
+          : "non-edit";
+        document.querySelectorAll("#myinfo input").forEach(function (input) {
+          input.disabled = !on;
+        });
+        // 취소했을 때 원상복구하기 위해
+        showMyInfo();
+      };
+
+      // 화면이 처음 로드되면 실행되는 함수
+      init = function () {
+        // showPhotos();
+        // showMyInfo();
+        loadMyInfo();
+      };
+
+      async function loadMyInfo() {
+        const querySnapshot = await getDocs(collection(db, "my_info"));
+        querySnapshot.forEach((doc) => {
+          my_info = doc.data();
+          my_info.docId = doc.id;
+
+          showMyInfo();
+        });
+      }
+
+      async function updateMyInfoOnDB() {
+        const firebase_myInfo = doc(db, "my_info", my_info.docId);
+        await updateDoc(firebase_myInfo, {
+          introduction: my_info.introduction,
+          as: my_info.as,
+          interest: my_info.interest,
+        }).then(function () {
+          loadMyInfo();
+        });
+      }
+    </script>
+  </head>
+  <body onload="init()">
+    <header>
+      <a class="logo" href="#">FastCampus Portfolio</a>
+      <nav class="nav">
+        <ul>
+          <li class="gallery on" onclick="setMenu('gallery')">사진들 보기</li>
+          <li class="upload" onclick="setMenu('upload')">사진 올리기</li>
+          <li class="myinfo" onclick="setMenu('myinfo')">내 정보</li>
+        </ul>
+      </nav>
+      <a class="account" href="#">Logout</a>
+    </header>
+    <main class="gallery">
+      <aside>
+        <div class="dep _gallery option-title">보기 옵션</div>
+        <div class="dep _upload option-title">사진 올리기</div>
+        <div class="dep _myinfo option-title">내 정보</div>
+        <ul id="sorts" class="dep _gallery">
+          <li class="recent on" onclick="setSort('recent')">최신순 보기</li>
+          <li class="like" onclick="setSort('like')">좋아요 순 보기</li>
+        </ul>
+        <ul id="filters" class="dep _gallery">
+          <li class="all on" onclick="setFilter('all')">전체 사진</li>
+          <li class="mine" onclick="setFilter('mine')">내 사진 사진</li>
+          <li class="like" onclick="setFilter('like')">좋아요 한 사진</li>
+          <li class="follow" onclick="setFilter('follow')">팔로우 회원 사진</li>
+        </ul>
+      </aside>
+      <div class="content">
+        <section id="intro" class="dep _gallery">
+          <h1>패스트캠퍼스 포트폴리오입니다.</h1>
+          <p>
+            수많은 이용자들이 공유하는 멋진 사진들을 구경하고<br />
+            내가 직접 찍은 작품들을 공유하세요!
+          </p>
+        </section>
+
+        <section id="gallery" class="dep _gallery">
+          <article class="hidden">
+            <div class="photo"></div>
+            <div class="info">
+              <div class="like"></div>
+              <div class="author"></div>
+              <div class="desc"></div>
+            </div>
+          </article>
+        </section>
+
+        <section id="upload" class="dep _upload">
+          <div class="instruction">나만의 특별한 사진을 업로드합니다.</div>
+          <input
+            class="description"
+            type="text"
+            maxlength="20"
+            placeholder="사진 설명을 20자 이내로 적어주세요."
+            onkeyup="setDescLength()"
+          />
+          <span class="descLength">0/20</span>
+          <br />
+          <input type="file" />
+          <br />
+          <br />
+          <div class="button">업로드</div>
+        </section>
+
+        <section id="myinfo" class="dep _myinfo">
+          <div class="non-edit">
+            <table>
+              <tr>
+                <td>아이디</td>
+                <td id="myInfoId"></td>
+              </tr>
+              <tr>
+                <td>사용자명</td>
+                <td id="myInfoUserName"></td>
+              </tr>
+              <tr>
+                <td>소개</td>
+                <td class="introduction">
+                  <input
+                    id="ip-intro"
+                    class="mi-dep edit"
+                    type="text"
+                    maxlength="30"
+                  />
+                  <span id="sp-intro" class="mi-dep non-edit"></span>
+                </td>
+              </tr>
+              <tr>
+                <td>취미/전문</td>
+                <td>
+                  <input
+                    id="hobby"
+                    type="radio"
+                    name="as"
+                    value="hobby"
+                    disabled
+                  />
+                  <label for="hobby">취미</label>
+                  <input id="pro" type="radio" name="as" value="pro" disabled />
+                  <label for="pro">전문가</label>
+                </td>
+              </tr>
+              <tr>
+                <td>흥미</td>
+                <td>
+                  <input
+                    class="cb-interest"
+                    id="nature"
+                    type="checkbox"
+                    value="nature"
+                    disabled
+                  />
+                  <label for="nature">자연</label>
+                  <input
+                    class="cb-interest"
+                    id="human"
+                    type="checkbox"
+                    value="human"
+                    disabled
+                  />
+                  <label for="human">사람</label>
+                  <input
+                    class="cb-interest"
+                    id="animal"
+                    type="checkbox"
+                    value="animal"
+                    disabled
+                  />
+                  <label for="animal">동물</label>
+                  <input
+                    class="cb-interest"
+                    id="thing"
+                    type="checkbox"
+                    value="thing"
+                    disabled
+                  />
+                  <label for="thing">사물</label>
+                </td>
+              </tr>
+            </table>
+            <div class="mi-dep non-edit button" onclick="setEditMyInfo(true)">
+              수정
+            </div>
+            <div class="mi-dep edit button" onclick="updateMyInfo()">확인</div>
+            <div
+              class="mi-dep edit button cancel"
+              onclick="setEditMyInfo(false)"
+            >
+              취소
+            </div>
+          </div>
+        </section>
+      </div>
+      <a class="write" onclick="setMenu('upload')">
+        <div></div>
+      </a>
+    </main>
+    <footer>
+      <ul>
+        <li><a href="#">회사소개</a></li>
+        <li><a href="#">인재채용</a></li>
+        <li><a href="#">이용약관</a></li>
+        <li><a href="#">개인정보 보호</a></li>
+        <li><a href="#">고객센터</a></li>
+      </ul>
+    </footer>
+  </body>
+</html>
