@@ -107,7 +107,7 @@ main .content {
 #gallery {
   padding: 16px;
 }
-article {
+#gallery article {
   display: inline-block;
   margin: 8px;
   padding: 24px;
@@ -115,19 +115,19 @@ article {
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
 }
-article.hidden {
+#gallery article.hidden {
   display: none;
 }
-article:hover {
+#gallery article:hover {
   box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.33);
 }
-article .photo {
+#gallery article .photo {
   width: 440px;
   height: 320px;
   border-radius: 4px;
   background-size: cover;
 }
-article .info {
+#gallery article .info {
   display: grid;
   grid-template-columns: 80px 1fr;
   grid-template-rows: 32px auto;
@@ -137,7 +137,7 @@ article .info {
   margin-top: 16px;
   font-size: 1.2rem;
 }
-article .info .like {
+#gallery article .info .like {
   grid-area: like;
   text-align: center;
   padding-top: 23px;
@@ -149,34 +149,34 @@ article .info .like {
   background-repeat: no-repeat;
   cursor: pointer;
 }
-article .info .like:hover {
+#gallery article .info .like:hover {
   opacity: 0.5;
 }
-article .info .like.on {
+#gallery article .info .like.on {
   color: white;
   background-image: url("../img/interface/heart_on.png");
 }
-article .info .author {
+#gallery article .info .author {
   grid-area: author;
   font-weight: 700;
   line-height: 32px;
 }
-article .info .author {
+#gallery article .info .author {
   /* ... */
   cursor: pointer;
 }
 
-article .info .author:hover {
+#gallery article .info .author:hover {
   opacity: 0.8;
 }
 
-article .info .author span {
+#gallery article .info .author span {
   margin-left: 6px;
   font-size: 0.9rem;
   color: dodgerblue;
 }
 
-article .info .desc {
+#gallery article .info .desc {
   grid-area: desc;
   padding: 4px 0;
   color: gray;
@@ -260,7 +260,8 @@ main .dep {
 main.gallery .dep._intro,
 main.gallery .dep._gallery,
 main.upload .dep._upload,
-main.myinfo .dep._myinfo {
+main.myinfo .dep._myinfo,
+main.detail .dep._detail {
   display: block;
 }
 
@@ -307,4 +308,72 @@ footer ul > li a {
 }
 footer ul > li a:hover {
   opacity: 0.67;
+}
+
+#backToGallery {
+  cursor: pointer;
+}
+#backToGallery:hover {
+  opacity: 0.8;
+}
+
+#detail {
+  padding: 32px;
+}
+#detail .photo {
+  width: 660px;
+  height: 480px;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+#detail .author {
+  margin-top: 24px;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+#detail .desc {
+  font-size: 1.1rem;
+  margin-top: 8px;
+}
+
+#comment-input {
+  font-size: 1rem;
+  width: 560px;
+  height: 32px;
+  padding: 0 8px;
+  line-height: 32px;
+}
+#comment-submit-button {
+  display: inline-block;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 16px;
+  color: white;
+  background-color: #ff4500;
+  vertical-align: top;
+  cursor: pointer;
+}
+#comment-submit-button:hover {
+  opacity: 0.8;
+}
+
+#comments {
+  margin-top: 18px;
+  width: 660px;
+}
+#comments > article {
+  padding: 16px 12px;
+}
+#comments > article:not(:last-child) {
+  border-bottom: 1px solid #ddd;
+}
+#comments > article .comment-info {
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+#comments > article .comment-info span {
+  margin-left: 8px;
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: gray;
 }
