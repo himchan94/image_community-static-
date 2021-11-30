@@ -20,7 +20,12 @@
       } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
-
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-storage.js";
       // Your web app's Firebase configuration
       // For Firebase JS SDK v7.20.0 and later, measurementId is optional
       const firebaseConfig = {
@@ -37,6 +42,7 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const db = getFirestore();
+      const data_storage = getStorage(app);
 
       // 메뉴 이동
       setMenu = function (_menu) {
@@ -167,10 +173,10 @@
       }
 
       // 사진올리기의 사진설명 길이 표시
-      function setDescLength() {
+      setDescLength = function () {
         document.querySelector(".descLength").innerHTML =
           document.querySelector("input.description").value.length + "/20";
-      }
+      };
 
       updateMyInfo = function () {
         my_info.introduction = document.querySelector("#ip-intro").value;
@@ -247,6 +253,22 @@
           loadMyInfo();
         });
       }
+
+      uploadFile = function () {
+        var file = document.querySelector("input[type=file]").files[0];
+
+        const storageRef = ref(data_storage, file.name);
+        console.log("참조", storageRef);
+
+        uploadBytes(storageRef, file).then((snapshot) => {
+          console.log(snapshot);
+          getDownloadURL(storageRef).then((url) => console.log(url));
+        });
+        // var ref = data_storage.ref().child(file.name);
+        // ref.put(file).then(function (snapshot) {
+        //   console.log(snapshot);
+        // });
+      };
     </script>
   </head>
   <body onload="init()">
@@ -311,7 +333,7 @@
           <input type="file" />
           <br />
           <br />
-          <div class="button">업로드</div>
+          <div class="button" onclick="uploadFile()">업로드</div>
         </section>
 
         <section id="myinfo" class="dep _myinfo">

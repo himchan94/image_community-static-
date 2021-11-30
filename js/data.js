@@ -4,6 +4,8 @@ var setMenu;
 var setFilter;
 var setEditMyInfo;
 var updateMyInfo;
+var uploadFile;
+var setDescLength;
 
 var _my_info = {
   id: "fastcampus",
