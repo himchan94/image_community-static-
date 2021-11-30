@@ -271,7 +271,7 @@
 
       async function uploadPhotoInfo(url) {
         var photoInfo = {
-          id: Date.now(),
+          idx: Date.now(),
           url: url,
           user_id: my_info.id,
           user_name: my_info.user_name,
@@ -281,9 +281,11 @@
 
         try {
           const data = await setDoc(
-            doc(db, "photos", String(photoInfo.id)),
+            doc(db, "photos", String(photoInfo.idx)),
             photoInfo
           );
+          document.querySelector("input[type=file]").value = "";
+          document.querySelector("input.description").value = "";
           setMenu("gallery");
           loadPhotos();
 
