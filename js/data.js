@@ -6,15 +6,21 @@ var setEditMyInfo;
 var updateMyInfo;
 var uploadFile;
 var setDescLength;
+var setSort;
 
-var _my_info = {
-  id: "fastcampus",
-  user_name: "패캠",
-  introduction: "사진 찍는 걸 좋아하는 프로그래머 지망생입니다.",
-  as: "hobby",
-  interest: ["nature", "thing"],
-  like: [2, 5, 9],
-  follow: ["photo-luv", "pixa", "googler", "js-master"],
+var filterName = "all";
+var getFilterParams = {
+  all: function () {
+    return ["idx", ">", 0];
+  },
+  mine: function () {
+    return ["user_id", "==", my_info.id];
+  },
+  like: function () {
+    return ["idx", "in", my_info.like];
+  },
+  follow: function () {
+    return ["user_id", "in", my_info.follow];
+  },
 };
-
 var photos = [];
