@@ -18,6 +18,9 @@
         doc,
         updateDoc,
         setDoc,
+        query,
+        orderBy,
+        where,
       } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
@@ -69,7 +72,7 @@
       var sort = sorts.recent;
 
       // 정렬 설정 & 적용
-      function setSort(_sort) {
+      setSort = function (_sort) {
         var sortButtons = document.querySelectorAll("#sorts li");
         sortButtons.forEach(function (sortButton) {
           sortButton.classList.remove("on");
@@ -77,7 +80,7 @@
         document.querySelector("#sorts ." + _sort).classList.add("on");
         sort = sorts[_sort];
         showPhotos();
-      }
+      };
 
       // 필터 방식
       var filters = {
@@ -105,8 +108,8 @@
           filterButton.classList.remove("on");
         });
         document.querySelector("#filters ." + _filter).classList.add("on");
-        filter = filters[_filter];
-        showPhotos();
+        filterName = _filter;
+        loadPhotos();
       };
 
       // 사진들 새로 보여주기
@@ -123,7 +126,9 @@
         var gallery = document.querySelector("#gallery");
 
         // 필터 & 정렬 적용
-        var filtered = photos.filter(filter);
+        // var filtered = photos.filter(filter);
+
+        var filtered = photos;
         filtered.sort(sort);
 
         // 필터된 사진들 화면에 나타내기
@@ -329,7 +334,23 @@
 
       async function loadPhotos() {
         let photosArray = [];
-        const querySnapshot = await getDocs(collection(db, "photos"));
+        // const q = query(collection(db, "photos"), orderBy("likes", "desc"));
+
+        // const q = query(
+        //   collection(db, "photos"),
+        //   where("user_id", "==", "사기꾼")
+        // );
+
+        const q = query(
+          collection(db, "photos"),
+          where(
+            getFilterParams[filterName]()[0],
+            getFilterParams[filterName]()[1],
+            getFilterParams[filterName]()[2]
+          )
+        );
+        const querySnapshot = await getDocs(q);
+
         querySnapshot.forEach((doc) => {
           photosArray.push(doc.data());
         });
