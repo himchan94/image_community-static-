@@ -5,8 +5,7 @@ body {
 header {
   display: grid;
   grid-template-columns: 24px 400px 1fr 84px 24px;
-  grid-template-areas: 
-   'left-space logo nav account right-space';
+  grid-template-areas: "left-space logo nav account right-space";
   position: fixed;
   z-index: 1;
   width: 100vw;
@@ -59,14 +58,14 @@ main aside {
   bottom: 0;
   left: 0;
   width: 240px;
-  background-color:#eee;
-  border-right:1px solid #d3d3d3;
+  background-color: #eee;
+  border-right: 1px solid #d3d3d3;
 }
 main aside .option-title {
   padding: 32px 0 0 32px;
   font-size: 1.5em;
   font-weight: 700;
-   color: gray;
+  color: gray;
 }
 main aside ul {
   font-size: 1.25em;
@@ -112,7 +111,7 @@ article {
   display: inline-block;
   margin: 8px;
   padding: 24px;
-  background-color:#fff ;
+  background-color: #fff;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
 }
@@ -133,8 +132,8 @@ article .info {
   grid-template-columns: 80px 1fr;
   grid-template-rows: 32px auto;
   grid-template-areas:
-    'like author' 
-    'like desc';
+    "like author"
+    "like desc";
   margin-top: 16px;
   font-size: 1.2rem;
 }
@@ -159,9 +158,24 @@ article .info .like.on {
 }
 article .info .author {
   grid-area: author;
-  font-weight:700;
+  font-weight: 700;
   line-height: 32px;
 }
+article .info .author {
+  /* ... */
+  cursor: pointer;
+}
+
+article .info .author:hover {
+  opacity: 0.8;
+}
+
+article .info .author span {
+  margin-left: 6px;
+  font-size: 0.9rem;
+  color: dodgerblue;
+}
+
 article .info .desc {
   grid-area: desc;
   padding: 4px 0;
@@ -175,9 +189,9 @@ article .info .desc {
   font-size: 1.3rem;
   margin-bottom: 24px;
 }
-#upload input { 
+#upload input {
   margin-bottom: 12px;
-  font-size: 1rem; 
+  font-size: 1rem;
 }
 #upload .description {
   width: 320px;
@@ -211,27 +225,27 @@ article .info .desc {
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.33);
 }
 
-#myinfo table { 
+#myinfo table {
   margin-bottom: 24px;
 }
-#myinfo table tr td { 
-  padding: 20px; 
+#myinfo table tr td {
+  padding: 20px;
   border-bottom: 1px solid #ddd;
 }
-#myinfo table tr:last-child td { 
+#myinfo table tr:last-child td {
   border-bottom: 0;
 }
 #myinfo table tr td:first-child {
   color: gray;
 }
-#myinfo table tr td input[type=text] { 
+#myinfo table tr td input[type="text"] {
   width: 440px;
   height: 32px;
   padding: 0 8px;
   line-height: 32px;
   font-size: 1rem;
 }
-#myinfo table tr td label { 
+#myinfo table tr td label {
   margin-right: 16px;
 }
 
@@ -240,7 +254,9 @@ article .info .desc {
   display: none;
 }
 
-main .dep { display: none; }
+main .dep {
+  display: none;
+}
 main.gallery .dep._intro,
 main.gallery .dep._gallery,
 main.upload .dep._upload,
@@ -272,10 +288,10 @@ main .write div:hover {
 
 footer {
   position: relative;
-  background-color:#383838;
-  padding:64px 0;
-  font-size:1.2rem;
-  text-align:center;
+  background-color: #383838;
+  padding: 64px 0;
+  font-size: 1.2rem;
+  text-align: center;
   z-index: 1;
 }
 footer ul > li {
@@ -283,11 +299,11 @@ footer ul > li {
   padding: 0 48px;
 }
 footer ul li:not(:last-child) {
-  border-right:1px solid gray;
+  border-right: 1px solid gray;
 }
-footer ul > li a{
+footer ul > li a {
   color: #fff;
-  text-decoration: none
+  text-decoration: none;
 }
 footer ul > li a:hover {
   opacity: 0.67;
