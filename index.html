@@ -17,6 +17,7 @@
         getDocs,
         doc,
         updateDoc,
+        setDoc,
       } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
@@ -140,7 +141,8 @@
               toggleLike(photo.idx);
             });
           photoNode.querySelector(".photo").style.backgroundImage =
-            "url('./img/photo/" + photo.file_name + "')";
+            "url('" + photo.url + "')";
+
           if (my_info.like.indexOf(photo.idx) > -1) {
             photoNode.querySelector(".like").classList.add("on");
           }
@@ -231,6 +233,7 @@
         // showPhotos();
         // showMyInfo();
         loadMyInfo();
+        loadPhotos();
       };
 
       async function loadMyInfo() {
@@ -262,13 +265,44 @@
 
         uploadBytes(storageRef, file).then((snapshot) => {
           console.log(snapshot);
-          getDownloadURL(storageRef).then((url) => console.log(url));
+          getDownloadURL(storageRef).then((url) => uploadPhotoInfo(url));
         });
-        // var ref = data_storage.ref().child(file.name);
-        // ref.put(file).then(function (snapshot) {
-        //   console.log(snapshot);
-        // });
       };
+
+      async function uploadPhotoInfo(url) {
+        var photoInfo = {
+          id: Date.now(),
+          url: url,
+          user_id: my_info.id,
+          user_name: my_info.user_name,
+          description: document.querySelector("input.description").value,
+          likes: Math.round(Math.random() * 10),
+        };
+
+        try {
+          const data = await setDoc(
+            doc(db, "photos", String(photoInfo.id)),
+            photoInfo
+          );
+          setMenu("gallery");
+          loadPhotos();
+
+          console.log(data);
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      async function loadPhotos() {
+        let photosArray = [];
+        const querySnapshot = await getDocs(collection(db, "photos"));
+        querySnapshot.forEach((doc) => {
+          photosArray.push(doc.data());
+        });
+
+        photos = photosArray;
+        showPhotos();
+      }
     </script>
   </head>
   <body onload="init()">
