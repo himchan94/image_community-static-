@@ -146,7 +146,37 @@
           if (my_info.like.indexOf(photo.idx) > -1) {
             photoNode.querySelector(".like").classList.add("on");
           }
+
+          if (my_info.follow.indexOf(photo.user_id) > -1) {
+            var followSpan = document.createElement("span");
+            followSpan.innerHTML = "FOLLOW";
+            photoNode.querySelector(".author").append(followSpan);
+          }
+
+          photoNode
+            .querySelector(".author")
+            .addEventListener("click", function () {
+              toggleFollow(photo.user_id);
+            });
+
           gallery.appendChild(photoNode);
+        });
+      }
+
+      function toggleFollow(user_id) {
+        if (my_info.follow.indexOf(user_id) === -1) {
+          my_info.follow.push(user_id);
+        } else {
+          my_info.follow = my_info.follow.filter(function (it) {
+            return it !== user_id;
+          });
+        }
+
+        const myInfoCollection = doc(db, "my_info", my_info.docId);
+        updateDoc(myInfoCollection, {
+          follow: my_info.follow,
+        }).then(function () {
+          loadPhotos();
         });
       }
 
