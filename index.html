@@ -157,6 +157,7 @@
           for (var i = 0; i < photos.length; i++) {
             if (photos[i].idx === idx) {
               photos[i].likes++;
+              toggleLikeOnDB(photos[i]);
               break;
             }
           }
@@ -167,11 +168,12 @@
           for (var i = 0; i < photos.length; i++) {
             if (photos[i].idx === idx) {
               photos[i].likes--;
+              toggleLikeOnDB(photos[i]);
               break;
             }
           }
         }
-        showPhotos();
+        // showPhotos();
       }
 
       // 사진올리기의 사진설명 길이 표시
@@ -304,6 +306,24 @@
 
         photos = photosArray;
         showPhotos();
+      }
+
+      async function toggleLikeOnDB(photo) {
+        try {
+          const myInfoCollection = doc(db, "my_info", my_info.docId);
+          await updateDoc(myInfoCollection, {
+            like: my_info.like,
+          });
+
+          const photosCollection = doc(db, "photos", String(photo.idx));
+          await updateDoc(photosCollection, {
+            likes: photo.likes,
+          });
+
+          loadPhotos();
+        } catch (error) {
+          throw error;
+        }
       }
     </script>
   </head>
